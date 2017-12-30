@@ -5,14 +5,19 @@
 #include <iostream>
 #include <random>
 #include <Windows.h>
+#include <ctime>
+
 #define INF 10000
 
 using namespace std;
 
 void randomSolution(int* solution, int length, int colorNum) {
     random_device rd ;
+    srand(time(NULL));
     for (int i = 0; i < length ; ++i) {
-        solution[i] = 1;///////////////////////////////////////////rd() % colorNum;
+        //solution[i] = rd() % colorNum;
+        //solution[i] = rand() % colorNum;
+        solution[i] = 0 ; rand() % colorNum;
     }
 }
 
@@ -76,14 +81,14 @@ void move( int** matrix,int * solution, int length, int **tabuList, int tabuLen,
             }
         }
     }
-    if ( (target+ tabuBest[3] < targetBest) ) {///////// && ( tabuBest[3] < nonTabuBest[3] ) ){
-//    if ( (target+ tabuBest[3] < targetBest) && ( tabuBest[3] < nonTabuBest[3] ) ){
+//    if ( (target+ tabuBest[3] < targetBest) ) {///////// && ( tabuBest[3] < nonTabuBest[3] ) ){
+    if ( (target+ tabuBest[3] < targetBest) && ( tabuBest[3] < nonTabuBest[3] ) ){
         //满足特赦条件
         target = targetBest = target +  tabuBest[3];
         tabuList[tabuPtr][0] = tabuBest[0];
         tabuList[tabuPtr][1] = tabuBest[1];
         tabuList[tabuPtr][2] = tabuBest[2];
-        cout << "emmm \t\t\t" << tabuBest[0]<<" "<< tabuBest[1]<< " "<< tabuBest[2]<< " "<< tabuBest[3]<< endl;
+        //cout << "emmm \t\t\t" << tabuBest[0]<<" "<< tabuBest[1]<< " "<< tabuBest[2]<< " "<< tabuBest[3]<< endl;
     }else {
         target = target + nonTabuBest[3];
         if (target < targetBest) targetBest = target ;
@@ -93,7 +98,7 @@ void move( int** matrix,int * solution, int length, int **tabuList, int tabuLen,
         //cout << "ehhhh" <<" "<< nonTabuBest[0]<< " "<< nonTabuBest[1]<< " "<< nonTabuBest[2]<<" "<<  nonTabuBest[3]<< endl;
 
     }
-    if (solution[ tabuList[tabuPtr][0] ] != tabuList[tabuPtr][1] ) cout << "ERROR!!!!!!!!!!!!!!!!!!" << endl;
+    //if (solution[ tabuList[tabuPtr][0] ] != tabuList[tabuPtr][1] ) cout << "ERROR!!!!!!!!!!!!!!!!!!" << endl;
     solution[ tabuList[tabuPtr][0] ] = tabuList[tabuPtr][2];
     tabuPtr ++;
     if (tabuPtr == tabuLen) tabuPtr =0;

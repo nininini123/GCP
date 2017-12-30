@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iostream>
 #include <limits>
+#include <ctime>
 #include "tabuSearch.h"
 #include "readCSV.h"
 
@@ -54,6 +55,10 @@ int main(int argc, char *argv[] ) {
     cout << "please input the number of colors : ";
     cin >> colorNum;
 
+    clock_t start,finish;
+    double totaltime;
+    start=clock();
+
     int * solution ,*currentBestSolution;
     solution = new int[p];
     currentBestSolution = new int[p];
@@ -64,7 +69,10 @@ int main(int argc, char *argv[] ) {
 
     int ** tabuList ;
     int tabuLen ,tabuPtr = 0;
-    tabuLen = (int) sqrt( (colorNum - 1) * p);
+    /***
+     *  sqrt( (colorNum - 1) * p)*2 可以解决125.1五种颜色
+     */
+    tabuLen = (int) sqrt( (colorNum - 1) * p)*2;
     tabuList = new int*[tabuLen];
     for (int j = 0; j < tabuLen; ++j) {
         tabuList[j] = new int[3];
@@ -77,11 +85,10 @@ int main(int argc, char *argv[] ) {
     int iterTimes = 0;
     while (target > 0) {
         iterTimes ++ ;
-//        target =
         move( matrix, solution, p,tabuList, tabuLen, tabuPtr , colorNum ,target, targetBest ) ;
         if (iterTimes % 10000 == 0) {
             cout << "iteration: " << iterTimes << endl;
-            printTabu(tabuList, tabuLen);
+            //printTabu(tabuList, tabuLen);
         }
         //if (target != getTargetFunc(matrix, solution, p)) cout <<"a\taaaaa\taaaa "<< target <<" "<<getTargetFunc(matrix, solution, p) << endl;
     }
@@ -90,6 +97,13 @@ int main(int argc, char *argv[] ) {
     for (int i = 0; i < p; ++i) {
        cout <<i+1 <<": " <<solution[i] <<"\t";
     }
+
+
+    finish=clock();
+    totaltime=(double)(finish-start)/CLOCKS_PER_SEC;
+    cout<<"\ntotal time : "<<totaltime<<"seconds"<<endl;
+
+    if (target != getTargetFunc(matrix, solution, p)) cout <<"a\tthe answer is not correct\taaaa "<< target <<" "<<getTargetFunc(matrix, solution, p) << endl;
 
     return 0;
 }
