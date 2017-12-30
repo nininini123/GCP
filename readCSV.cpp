@@ -9,7 +9,11 @@ using namespace std;
 int** initMatrix(char * filepath, int &p, int &e) {
     ifstream infile;
 
-    infile.open(filepath);
+    infile.open(filepath) ;
+    if (  !infile.is_open() ) {
+        cout << "error open file " << filepath << endl;
+        return NULL;
+    }
     string value;
     char c = 0;
     infile >> c ;
@@ -42,6 +46,7 @@ int** initMatrix(char * filepath, int &p, int &e) {
         if (c == 'e' ) {
             infile >> a >> b ;
             matrix[a-1][b-1] = 1;
+            matrix[b-1][a-1] = 1;
         }
         else {
             cout << "error reading file" << filepath <<endl;
