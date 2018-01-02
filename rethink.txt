@@ -2,3 +2,8 @@ according to ppt,
 k个颜色，把涂色问题当作集合问题
 把结点分到k个集合之中
 目标函数（要最小化至0的）f
+
+neighborhood moves :
+	critical one-move -- see ch3_hybridEvolutionary... P21
+	
+禁忌表 见 ch3_hybridEvolutionary... P32

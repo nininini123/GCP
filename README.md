@@ -1,2 +1,1 @@
-# GCP
-Graph Coloring Problem with Tabu search
+# GCPGraph Coloring Problem with Tabu search1. 2018.1.2 可以把算例125.1在0.1秒之内解决 约10w迭代

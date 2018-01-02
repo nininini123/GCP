@@ -5,20 +5,20 @@
 #include <iostream>
 #include <random>
 #include <Windows.h>
-#include <ctime>
+#include "tabuList.h"
 
 #define INF 10000
 
 using namespace std;
 
 void randomSolution(int* solution, int length, int colorNum) {
-    random_device rd ;
-    srand(time(NULL));
+//    random_device rd ;
     for (int i = 0; i < length ; ++i) {
-        //solution[i] = rd() % colorNum;
-        //solution[i] = rand() % colorNum;
-        solution[i] = 0 ; rand() % colorNum;
+//        solution[i] = rd() % colorNum;
+        solution[i] = rand() % colorNum;
+//        solution[i] = 0 ; //rand() % colorNum;
     }
+    cout << "done random solution" << endl;
 }
 
 /***
@@ -26,96 +26,131 @@ void randomSolution(int* solution, int length, int colorNum) {
  * @param solution
  * @param length    结点数
  * @param tabuList
- * @param tabuLen
+ * @param tabuTenure
  * @param targetBest 历史最优的target
  * @return target 当前solution对应的冲突数之和
  */
-//void move( int** matrix,int * solution, int length, int tabuList[][3], int tabuLen,int &tabuPtr , int colorNum ,int &target, int &targetBest ) {
-void move( int** matrix,int * solution, int length, int **tabuList, int tabuLen,int &tabuPtr , int colorNum ,int &target, int &targetBest ) {
-    int delta =0,newColor;
-    int tabuBest[4] ={0,0,0,INF};
-    int nonTabuBest[4] = {0,0,0,INF} ; //记录 当前最优的禁忌/非禁忌move的 节点号 & old颜色 & new 颜色 &delta
+void move( int** adjColorTable,int** tabuTable ,int * solution, int length, int colorNum ,int &target, int &targetBest ,tabuList** head ,int**adj, int* adjLen) {
+    int delta =0 ;
+    int tabuBest[3] ={0,0,INF};
+    int nonTabuBest[3] = {0,0,INF} ; //记录 当前最优的禁忌/非禁忌move的 节点号  & new 颜色  &delta
+
+    //cout << "starting looking for best move ..."<< endl;
+    /*** find a best move ***/
     for (int i = 0; i < length ; ++i) {
         //第 i个结点
         //换成颜色j
         //与k是邻居
-        for (int j = 0; j < colorNum ; ++j) {
-            if ( solution[i] != j ) {
-                //求delta
-                delta = 0 ;
-                for (int k = 0; k < length; ++k) {
-                    if (matrix[i][k] == 1) {
-                        if (solution[k] == j) {
-                            delta++;
-                        }
-                        if (solution[k] == solution[i]) {
-                            delta--;
-                        }
-                    }
-                }
+        if (   adjColorTable[i][ solution[i] ] > 0 )///////////////////////////////记得换啊啊啊回来
+        {
+            for (int j = 0; j < colorNum; ++j) {
+                if (solution[i] != j) {
+                    //求delta
+                    delta = adjColorTable[i][j] - adjColorTable[i][ solution[i] ];
+                    //delta = *( *( adjColorTable + i) +  j )  -  *( *( adjColorTable + i) +  solution[i] ) ;
 
-                short tabu = 0 ;
-                for (int l = 0; l <tabuLen ; ++l) {
-                    if ( (tabuList[l][0]== i && tabuList[l][2]== solution[i] && tabuList[l][1 ]== j )
-                            || (tabuList[l][0]== i && tabuList[l][1]== solution[i] && tabuList[l][2 ]== j )  ) {
-                        tabu = 1 ;
-                        break;
-                    }
-                }
-                if (tabu) {
-                    if ( delta < tabuBest[3]) {
-                        tabuBest[0] = i;
-                        tabuBest[1] = solution[i];
-                        tabuBest[2] = j;
-                        tabuBest[3] = delta ;
-                        //cout << "tttttTT.."<<i << " "<<j<<endl;
-                    }
-                } else {
-                    if ( delta < nonTabuBest[3]) {
-                        nonTabuBest[0] = i;
-                        nonTabuBest[1] = solution[i];
-                        nonTabuBest[2] = j;
-                        nonTabuBest[3] = delta ;
+                    if ( tabuTable[i][j] ) {
+                        if (delta < tabuBest[2]) {
+                            tabuBest[0] = i;
+                            tabuBest[1] = j;
+                            tabuBest[2] = delta;
+                            //cout << "looking for best move ..."<<i << " "<<j<<endl;
+                        }
+                    } else {
+                        if (delta < nonTabuBest[2]) {
+                            nonTabuBest[0] = i;
+                            nonTabuBest[1] = j;
+                            nonTabuBest[2] = delta;
+                            //cout << "looking for best move ...nana..."<<i << " "<<j<<endl;
+
+                        }
                     }
                 }
             }
         }
     }
-//    if ( (target+ tabuBest[3] < targetBest) ) {///////// && ( tabuBest[3] < nonTabuBest[3] ) ){
-    if ( (target+ tabuBest[3] < targetBest) && ( tabuBest[3] < nonTabuBest[3] ) ){
+    //cout << "done finding best move" << endl;
+
+    /*** make the best move ***/
+////////////////////////////////啊喂 adjcolortable 木有更新啊啊啊啊
+    if ( (target+ tabuBest[2] < targetBest) && ( tabuBest[2] < nonTabuBest[2] ) ){
         //满足特赦条件
-        target = targetBest = target +  tabuBest[3];
-        tabuList[tabuPtr][0] = tabuBest[0];
-        tabuList[tabuPtr][1] = tabuBest[1];
-        tabuList[tabuPtr][2] = tabuBest[2];
-        //cout << "emmm \t\t\t" << tabuBest[0]<<" "<< tabuBest[1]<< " "<< tabuBest[2]<< " "<< tabuBest[3]<< endl;
-    }else {
-        target = target + nonTabuBest[3];
-        if (target < targetBest) targetBest = target ;
-        tabuList[tabuPtr][0] = nonTabuBest[0];
-        tabuList[tabuPtr][1] = nonTabuBest[1];
-        tabuList[tabuPtr][2] = nonTabuBest[2];
-        //cout << "ehhhh" <<" "<< nonTabuBest[0]<< " "<< nonTabuBest[1]<< " "<< nonTabuBest[2]<<" "<<  nonTabuBest[3]<< endl;
-
+        nonTabuBest[0] = tabuBest[0];
+        nonTabuBest[1] = tabuBest[1];
+        nonTabuBest[2] = tabuBest[2];
+        //  当前最优的禁忌/非禁忌move的 节点号[0]  & new 颜色[1]  &delta
     }
-    //if (solution[ tabuList[tabuPtr][0] ] != tabuList[tabuPtr][1] ) cout << "ERROR!!!!!!!!!!!!!!!!!!" << endl;
-    solution[ tabuList[tabuPtr][0] ] = tabuList[tabuPtr][2];
-    tabuPtr ++;
-    if (tabuPtr == tabuLen) tabuPtr =0;
+	if (nonTabuBest[2] == INF)
+	{
+		cout << " all good moves are tabu ! \n!\n!\n!\n!\n!\n!\n!";
+		exit(1);
+	}
+    /***  与修改的结点 相邻的all k个结点 adj[k] 的adjcolortable表项 要更新 √ ***/
+    /***  tabutable 也要更新  ***/
+    int adjPoint;
+    for (int k = 0; k <adjLen[ nonTabuBest[0] ] ; ++k) {
+        adjPoint = adj[ nonTabuBest[0] ][k] ;
+        adjColorTable[ adjPoint ][ solution[ nonTabuBest[0] ] ] --;
+        adjColorTable[ adjPoint ][  nonTabuBest[1] ] ++;
+    }
+
+    target +=  nonTabuBest[2];
+    if (target < targetBest) targetBest = target ;
+    updateTabu( head,nonTabuBest[0], nonTabuBest[1],tabuTable );
+    solution[nonTabuBest[0]] = nonTabuBest[1];
+
 }
 
-int getTargetFunc(int** matrix, int * solution, int length) {
-    int ret = 0 ;
-    for (int i = 0; i < length; ++i) {
-        for (int j = 0; j < i; ++j) {
-            if (matrix[i][j] == 1 ) {
-                if ( solution[i] == solution[j] ){
-                    //cout << i+1 << "\t" << j+1 << endl;
-                    ret ++;
-                }
+int getTargetFunc(int** adj, int * adjLen, int * solution, int p ) {
+    int target = 0 ;
+    for (int i = 0; i < p; ++i) {
+        for (int j = 0; j < adjLen[i]; ++j) {
+            if ( solution[i] == solution[ *( *( adj+i)+j) ] ){
+                //cout << i+1 << "\t" << j+1 << endl;
+                 target ++ ;
             }
         }
     }
-    Sleep(3000);
-    return ret;
+    //每个冲突算了两次
+    return target/2;
 }
+
+void initAdjColorTable(int** adjColorTable,int ** adj,int * adjLen,int p ,int colorNum, int solution[]) {
+    int point;
+    int test=0;
+    for (int i = 0; i < p; ++i) {
+        for (int j = 0; j < colorNum ; ++j) {
+            //*( *( adjColorTable + i) + j ) = 0;
+            adjColorTable[i][j] = 0;
+        }
+        for (int k = 0; k <adjLen[i] ; ++k) {
+           // point = *( *( adjColorTable + i) + k ) ;// adj[i][k];
+            point = adj[i][k];
+//            ( *( *( adjColorTable + i) + solution[ point ] ) )++;
+             adjColorTable[i][ solution[ point ] ] ++;
+        }
+    }
+}
+
+
+//void initAdjacent( int* &adj[], int* adjLength, int p, int ** matrix ) {
+//    for (int i = 0; i < p; ++i) {
+//        adjLength[i] = 0;
+//        for (int j = 0; j < p ; ++j) {
+//            if (matrix[i][j]) {
+//                adjLength[i] ++ ;
+//            }
+//        }
+//    }
+//    for (int i = 0; i < p; ++i) {
+//        adj[i] = new int[adjLength[i] ] ;
+//        int temp ;
+//        temp = 0 ;
+//        for (int j = 0; j < p ; ++j) {
+//            if (matrix[i][j]) {
+//                adj[i][temp] = j;
+//                temp++;
+//            }
+//        }
+//    }
+//}
