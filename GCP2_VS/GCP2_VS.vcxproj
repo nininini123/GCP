@@ -146,14 +146,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\readCSV.h" />
-    <ClInclude Include="..\tabuList.h" />
+    <ClInclude Include="..\readData.h" />
     <ClInclude Include="..\tabuSearch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp" />
-    <ClCompile Include="..\readCSV.cpp" />
-    <ClCompile Include="..\tabuList.cpp" />
+    <ClCompile Include="..\readData.cpp" />
     <ClCompile Include="..\tabuSearch.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

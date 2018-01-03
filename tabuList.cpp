@@ -1,7 +1,3 @@
-//
-// Created by 30838 on 2017/12/31.
-//
-
 #include "tabuList.h"
 
 //typedef struct tabulist{

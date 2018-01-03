@@ -5,7 +5,8 @@
 #include <iostream>
 #include <random>
 #include <Windows.h>
-#include "tabuList.h"
+#include "tabuSearch.h"
+//#include "tabuList.h"
 
 #define INF 10000
 
@@ -30,7 +31,7 @@ void randomSolution(int* solution, int length, int colorNum) {
  * @param targetBest 历史最优的target
  * @return target 当前solution对应的冲突数之和
  */
-void move( int** adjColorTable,int** tabuTable ,int * solution, int length, int colorNum ,int &target, int &targetBest ,tabuList** head ,int**adj, int* adjLen) {
+void move( int** adjColorTable,int** tabuTable ,int * solution, int length, int colorNum ,int &target, int &targetBest ,int**adj, int* adjLen , int iterTimes , int& tabuTenure, int** freq) {
     int delta =0 ;
     int tabuBest[3] ={0,0,INF};
     int nonTabuBest[3] = {0,0,INF} ; //记录 当前最优的禁忌/非禁忌move的 节点号  & new 颜色  &delta
@@ -49,7 +50,7 @@ void move( int** adjColorTable,int** tabuTable ,int * solution, int length, int 
                     delta = adjColorTable[i][j] - adjColorTable[i][ solution[i] ];
                     //delta = *( *( adjColorTable + i) +  j )  -  *( *( adjColorTable + i) +  solution[i] ) ;
 
-                    if ( tabuTable[i][j] ) {
+                    if ( tabuTable[i][j] > iterTimes) {
                         if (delta < tabuBest[2]) {
                             tabuBest[0] = i;
                             tabuBest[1] = j;
@@ -96,8 +97,13 @@ void move( int** adjColorTable,int** tabuTable ,int * solution, int length, int 
 
     target +=  nonTabuBest[2];
     if (target < targetBest) targetBest = target ;
-    updateTabu( head,nonTabuBest[0], nonTabuBest[1],tabuTable );
+    //updateTabu( head,nonTabuBest[0], nonTabuBest[1],tabuTable );
     solution[nonTabuBest[0]] = nonTabuBest[1];
+	freq[nonTabuBest[0]][nonTabuBest[1]] ++;
+	freq[nonTabuBest[0]][colorNum] ++;
+	//tabuTenure = target + rand() % 20 + iterTimes + colorNum * freq[nonTabuBest[0]][nonTabuBest[1]] / freq[nonTabuBest[0]][colorNum];
+	tabuTenure = TABUTENURE;
+	tabuTable[nonTabuBest[0]][nonTabuBest[1]] = tabuTenure;
 
 }
 
